@@ -3,38 +3,136 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
+    <title>E-commerce Analytics Dashboard</title>
     <link rel="stylesheet" href="style.css" />
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   </head>
   <body>
-    <div>
-      <canvas id="myChart"></canvas>
+    <div class="dashboard">
+      <div class="chart-container">
+        <h2>Monthly Sales</h2>
+        <canvas id="salesChart"></canvas>
+      </div>
+      <div class="chart-container">
+        <h2>Top Products by Price</h2>
+        <canvas id="productsChart"></canvas>
+      </div>
+      <div class="chart-container">
+        <h2>Customer Distribution by Country</h2>
+        <canvas id="customersChart"></canvas>
+      </div>
+      <div class="chart-container">
+        <h2>Product Ratings Distribution</h2>
+        <canvas id="reviewsChart"></canvas>
+      </div>
     </div>
 
     <script>
-      const ctx = document.getElementById("myChart");
+      fetch("data.php")
+        .then((res) => res.json())
+        .then((data) => {
+          // 1. Bar Chart - Monthly Sales
+          new Chart(document.getElementById("salesChart"), {
+            type: "bar",
+            data: {
+              labels: data.sales.map((item) => item.month),
+              datasets: [
+                {
+                  label: "Monthly Sales",
+                  data: data.sales.map((item) => item.sales),
+                  backgroundColor: [
+                    "rgba(255, 99, 132, 0.5)",
+                    "rgba(54, 162, 235, 0.5)",
+                    "rgba(255, 206, 86, 0.5)",
+                    "rgba(75, 192, 192, 0.5)",
+                    "rgba(153, 102, 255, 0.5)",
+                  ],
+                  borderColor: "rgb(54, 162, 235)",
+                  borderWidth: 1,
+                },
+              ],
+            },
+            options: {
+              responsive: true,
+              scales: {
+                y: {
+                  beginAtZero: true,
+                },
+              },
+            },
+          });
 
-      new Chart(ctx, {
-        type: "bar",
-        data: {
-          labels: ["Red", "Blue", "Yellow", "Green", "Purple", "Orange"],
-          datasets: [
-            {
-              label: "# of Votes",
-              data: [12, 19, 3, 5, 2, 3],
-              borderWidth: 1,
+          // 2. Pie Chart - Top Products by Price
+          new Chart(document.getElementById("productsChart"), {
+            type: "pie",
+            data: {
+              labels: data.products.map((item) => item.product_name),
+              datasets: [
+                {
+                  data: data.products.map((item) => item.price),
+                  backgroundColor: [
+                    "rgba(255, 99, 132, 0.5)",
+                    "rgba(54, 162, 235, 0.5)",
+                    "rgba(255, 206, 86, 0.5)",
+                    "rgba(75, 192, 192, 0.5)",
+                    "rgba(153, 102, 255, 0.5)",
+                  ],
+                },
+              ],
             },
-          ],
-        },
-        options: {
-          scales: {
-            y: {
-              beginAtZero: true,
+            options: {
+              responsive: true,
             },
-          },
-        },
-      });
+          });
+
+          // 3. Doughnut Chart - Customer Distribution
+          new Chart(document.getElementById("customersChart"), {
+            type: "polarArea",
+            data: {
+              labels: data.customers.map((item) => item.country),
+              datasets: [
+                {
+                  data: data.customers.map((item) => item.customer_count),
+                  backgroundColor: [
+                    "rgba(255, 99, 132, 0.5)",
+                    "rgba(54, 162, 235, 0.5)",
+                    "rgba(255, 206, 86, 0.5)",
+                    "rgba(75, 192, 192, 0.5)",
+                    "rgba(153, 102, 255, 0.5)",
+                  ],
+                },
+              ],
+            },
+            options: {
+              responsive: true,
+            },
+          });
+
+          //   4. Line Chart - Ratings Distribution
+          new Chart(document.getElementById("reviewsChart"), {
+            type: "line",
+            data: {
+              labels: data.reviews.map((item) => item.rating + " Stars"),
+              datasets: [
+                {
+                  label: "Number of Reviews",
+                  data: data.reviews.map((item) => item.review_count),
+                  fill: false,
+                  borderColor: "rgb(75, 192, 192)",
+                  tension: 0.1,
+                },
+              ],
+            },
+            options: {
+              responsive: true,
+              scales: {
+                y: {
+                  beginAtZero: true,
+                },
+              },
+            },
+          });
+        });
     </script>
   </body>
 </html>
